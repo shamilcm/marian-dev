@@ -230,9 +230,16 @@ Beams BeamSearch::purgeBeams(const Beams& beams, /*in/out=*/std::vector<IndexTyp
   size_t beamIdx = 0; // beam index
   for(auto beam : beams) {
     Beam newBeam; // a beam of surviving hyps
+    Beam emptyBeam;
     for(auto hyp : beam)
       if(hyp->getWord() != trgEosId) // if this hyp is not finished,
         newBeam.push_back(hyp);      // move over to beam of surviving hyps
+      else{   // if any hypothesis has completed, empty the entire beam if the argument "stop-at-first" is set.
+        if (options_->get<bool>("stop-at-first") == true){
+          newBeam = emptyBeam;
+          break;
+        }
+      }
 
     if(PURGE_BATCH)
       if(newBeam.empty() && !beam.empty()) {      // previous beam had hyps, but all were finished in this step, newBeam will now stay empty
@@ -499,7 +506,7 @@ Histories BeamSearch::search(Ptr<ExpressionGraph> graph, Ptr<data::CorpusBatch> 
       if(!beams[batchIdx].empty()) { // if the beam is not empty expand the history object associated with the beam
         if (histories[batchIdx]->size() >= options_->get<float>("max-length-factor") * batch->front()->batchWidth())
           maxLengthReached = true;
-        histories[batchIdx]->add(beams[batchIdx], trgEosId, purgedNewBeams[batchIdx].empty() || maxLengthReached);
+        histories[batchIdx]->add(beams[batchIdx], trgEosId, maxLengthReached);
       }
     }
     if (maxLengthReached) // early exit if max length limit was reached
