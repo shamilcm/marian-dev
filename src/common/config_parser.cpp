@@ -617,7 +617,7 @@ void ConfigParser::addOptionsTranslation(cli::CLIWrapper& cli) {
       "Maximum target length as source length times factor",
       3);
   cli.add<bool>("--stop-at-first",
-      "Stop when the one of the beam hypothesis completes.");
+      "Stop search as soon as one of the beam hypothesis completes.");
   cli.add<float>("--word-penalty",
       "Subtract (arg * translation length) from translation score");
   cli.add<bool>("--allow-unk",
